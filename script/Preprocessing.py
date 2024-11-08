@@ -5,6 +5,7 @@ import seaborn as sns
 import yfinance as yf 
 from scipy.stats import zscore
 from IPython.display import display, HTML
+from statsmodels.tsa.seasonal import seasonal_decompose
 
 class Preprocessor:
     def dload_save_yfinance_data(self,tickers):
@@ -108,10 +109,6 @@ class Preprocessor:
             plt.show()
             
     def seasonal_decompose(self,stoke_data):
-        import pandas as pd
-        import matplotlib.pyplot as plt
-        from statsmodels.tsa.seasonal import seasonal_decompose
-
         columns=['TSLA','BND','SPY']
         for col in columns:
             decomposition = seasonal_decompose(stoke_data[col], model='additive', period=252 )
