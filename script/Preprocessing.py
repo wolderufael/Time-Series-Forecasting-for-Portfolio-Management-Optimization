@@ -40,8 +40,10 @@ class Preprocessor:
         columns=['TSLA','BND','SPY']
         for col in columns:
             returns=stoke_data[col].pct_change()*100
-            # stoke_data[f'{col}_daily_%_return']=stoke_data[col].pct_change()*100
-            plt.plot(stoke_data[f'{col}_daily_%_return'],label=col)
+            returns_summary=returns.describe()
+            print(f"{col} summary :")
+            print(returns_summary)
+            
             plt.plot(stoke_data.index,returns,label=col)
         plt.ylabel('Daily % Return')
         plt.title("Daily % Return")
@@ -53,12 +55,13 @@ class Preprocessor:
         plt.figure(figsize=(15,5))
         for i, col in enumerate(columns):
             returns=stoke_data[col].pct_change()
-            
+
             plt.subplot(1,3,i + 1)
             plt.hist(returns, bins=30, alpha=0.7, color='green', edgecolor='black')
             plt.title(f'{col} Returns')
             plt.xlabel('Returns')
             plt.ylabel('Frequency')
+
 
         plt.tight_layout()  
         plt.show()
