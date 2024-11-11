@@ -92,12 +92,13 @@ class Modelling:
         
         logging.info("Evaluatio Metrics to assses the performance of the model.")
 
-    def plot_result(self,train,test,forecast):
+    def plot_result(self,ticker,train,test,forecast):
         # Plot the final forecast
         plt.figure(figsize=(14,7))
         plt.plot(train, label='Train')
         plt.plot(test, label='Test')
         plt.plot(test.index, forecast, label='ARIMA Forecast')
+        plt.title(f"{ticker} Test Vs Prediction")
         plt.legend()
         plt.show()
         
