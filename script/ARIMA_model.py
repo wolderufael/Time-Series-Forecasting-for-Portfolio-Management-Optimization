@@ -15,6 +15,13 @@ logging.basicConfig(level=logging.INFO,
 
 
 class Modelling:
+    def load_data(self,file_path):
+        df =pd.read_csv(file_path)
+        df['Date']=pd.to_datetime(df['Date'])
+        df.set_index('Date',inplace=True)
+        
+        return df
+    
     def check_stationarity(self,df,col):
         result=adfuller(df[col],autolag="AIC")
         
@@ -28,8 +35,6 @@ class Modelling:
         logging.info("Stationarity of the time series data is checked.")
         
     def train_test_split(self,stoke_data,ticker):
-        stoke_data['Date']=pd.to_datetime(stoke_data['Date'])
-        stoke_data.set_index('Date',inplace=True)
         training_data=stoke_data[[ticker]]
         train_size = int(len(training_data) * 0.8)
         train, test = training_data[ticker][:train_size], training_data[ticker][train_size:]
