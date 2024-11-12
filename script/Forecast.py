@@ -1,5 +1,6 @@
 import numpy as np
 import pandas as pd
+from datetime import timedelta
 import joblib
 import pickle
 import matplotlib.pyplot as plt
@@ -13,6 +14,22 @@ with open(model_path, 'rb') as file:
 scaler = joblib.load(scaler_path)
 
 class Forecast:
+    def lstm_predict_future(data,model, scaler,start_date, predict_days=30, time_step=60):
+        last_data = data[['Price']].values[-time_step:]
+        last_data_scaled = scaler.transform(last_data.reshape(-1, 1))
+        input_seq = last_data_scaled.reshape(1, time_step, 1)
+        predictions = []
+        current_date = pd.to_datetime(data['Date'].iloc[-1]) + timedelta(days=1)
+
+        for _ in range(predict_days):
+            predicted_price_scaled = model.predict(input_seq)
+            predicted_price = scaler.inverse_transform(predicted_price_scaled)[0][0]
+            predictions.append((current_date, predicted_price))
+            input_seq = np.append(input_seq[:, 1:, :], [[predicted_price_scaled[0]]], axis=1)
+            current_date += timedelta(days=1)
+        prediction_df = pd.DataFrame(predictions, columns=['Date', 'Predicted Price'])
+        
+        return prediction_df
     def forecast_prices(model, data, steps=180, sequence_length=60):
         predictions = []
         last_sequence = data[-sequence_length:]

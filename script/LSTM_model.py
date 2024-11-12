@@ -24,7 +24,7 @@ class LSTM_Modelling:
         return df
     
     def train_test_split(self,stoke_data,ticker):
-        training_data=stoke_data[[ticker]].resample('W').mean()
+        training_data=stoke_data[[ticker]]
         train_size = int(len(training_data) * 0.8)
         train, test = training_data[ticker][:train_size], training_data[ticker][train_size:]
         logging.info("Train-Test split is done with a ratio of 0.8.")
@@ -80,8 +80,12 @@ class LSTM_Modelling:
         test_predict = scaler.inverse_transform(test_predict)
         y_train = scaler.inverse_transform(y_train.reshape(-1, 1))
         y_test = scaler.inverse_transform(y_test.reshape(-1, 1))
+
+        # Convert test_predict to a DataFrame with appropriate index
+        forecast_index = test_data.index[time_step + 1:]
+        forecast = pd.DataFrame({'Actual': y_test.flatten(), 'Predicted': test_predict.flatten()}, index=forecast_index)
         
-                #Save the model in .pkl format
+        #Save the model in .pkl format
         # Create the folder if it doesn't exist
         folder_path='models/'
         if not os.path.exists(folder_path):
@@ -101,7 +105,7 @@ class LSTM_Modelling:
         
         logging.info("Model trainning with LSTM model")
 
-        return y_test,test_predict
+        return forecast
     
     def evaluate_lstm_model(self,y_true,y_pred):        
         mae = mean_absolute_error(y_true, y_pred)
@@ -119,12 +123,12 @@ class LSTM_Modelling:
         
         logging.info("Evaluatio Metrics to assses the performance of the model.")
     
-    def plot_result(self,ticker,train,test,forecast):
+    def plot_result(self,ticker,train,forecast):
         # Plot the final forecast
         plt.figure(figsize=(14,7))
         plt.plot(train, label='Train')
-        plt.plot(test, label='Test')
-        plt.plot(test.index, forecast, label='LSTM Forecast')
+        plt.plot(forecast['Actual'], label='Test')
+        plt.plot(forecast['Predicted'], label='LSTM Forecast')
         plt.title(f"{ticker} Test Vs Prediction")
         plt.legend()
         plt.show()
