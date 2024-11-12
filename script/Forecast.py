@@ -1,6 +1,16 @@
 import numpy as np
+import pandas as pd
+import joblib
+import pickle
+import matplotlib.pyplot as plt
 import tensorflow as tf
 
+#Load model and scalar
+model_path='public/lstm-06-11-2024-04-52-41-00.pkl'
+scaler_path='public/scaler.joblib'
+with open(model_path, 'rb') as file:
+        model = pickle.load(file)
+scaler = joblib.load(scaler_path)
 
 class Forecast:
     def forecast_prices(model, data, steps=180, sequence_length=60):
@@ -15,3 +25,47 @@ class Forecast:
             last_sequence = np.append(last_sequence[1:], pred)
         
         return np.array(predictions)
+
+    def plot_forecast(historical_data, forecasted_data, scaler, confidence_interval=0.05):
+        # Inverse scaling for original price scale
+        historical_data = scaler.inverse_transform(historical_data)
+        forecasted_data = scaler.inverse_transform(forecasted_data.reshape(-1, 1))
+
+        # Create a date index for the forecast
+        dates = pd.date_range(start=historical_data.index[-1], periods=len(forecasted_data)+1, freq='B')[1:]
+
+        # Confidence Intervals
+        lower_bound = forecasted_data * (1 - confidence_interval)
+        upper_bound = forecasted_data * (1 + confidence_interval)
+
+        # Plotting
+        plt.figure(figsize=(14, 8))
+        plt.plot(historical_data.index, historical_data, color='blue', label='Historical Data')
+        plt.plot(dates, forecasted_data, color='orange', label='Forecasted Price')
+        plt.fill_between(dates, lower_bound.flatten(), upper_bound.flatten(), color='gray', alpha=0.3, label='Confidence Interval')
+        
+        plt.title("Tesla Stock Price Forecast")
+        plt.xlabel("Date")
+        plt.ylabel("Price")
+        plt.legend()
+        plt.show()
+        
+        
+    def analyze_forecast(forecasted_data, confidence_interval=0.05):
+        # Trend Analysis
+        trend = "upward" if forecasted_data[-1] > forecasted_data[0] else "downward"
+        print(f"Trend Analysis: The forecast shows a {trend} trend.")
+
+        # Volatility and Risk Analysis
+        volatility = (forecasted_data.max() - forecasted_data.min()) / forecasted_data.mean()
+        print(f"Volatility Analysis: The forecasted data shows a volatility level of {volatility:.2f}.")
+
+        # Confidence Interval Insights
+        risk_periods = np.where((forecasted_data * (1 + confidence_interval) - forecasted_data * (1 - confidence_interval)) > forecasted_data.mean() * 0.05)[0]
+        print("Market Risk Periods:", risk_periods)
+
+        # Market Opportunities and Risks
+        if trend == "upward":
+            print("Market Opportunity: There is potential for growth, suggesting possible price increases.")
+        else:
+            print("Market Risk: The downward trend suggests potential price declines, indicating high risk.")

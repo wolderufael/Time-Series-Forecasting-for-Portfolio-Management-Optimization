@@ -31,11 +31,14 @@ class LSTM_Modelling:
         
         return train, test
     
-    def train_lstm(self,train_data,test_data):
+    def train_lstm(self,train_data,test_data,ticker):
         # Scale the 'Price' column
         scaler = MinMaxScaler(feature_range=(0, 1))
         train_scaled = scaler.fit_transform(train_data.values.reshape(-1, 1))
         test_scaled = scaler.transform(test_data.values.reshape(-1, 1))
+        
+        # Save the fitted scaler for future use
+        joblib.dump(scaler, f'models/{ticker}-scaler.joblib')
 
         # Function to create dataset with time steps
         def create_dataset(data, time_step=1):
@@ -77,6 +80,24 @@ class LSTM_Modelling:
         test_predict = scaler.inverse_transform(test_predict)
         y_train = scaler.inverse_transform(y_train.reshape(-1, 1))
         y_test = scaler.inverse_transform(y_test.reshape(-1, 1))
+        
+                #Save the model in .pkl format
+        # Create the folder if it doesn't exist
+        folder_path='models/'
+        if not os.path.exists(folder_path):
+            os.makedirs(folder_path)
+        
+        # Generate timestamp in format dd-mm-yyyy-HH-MM-SS-00
+        timestamp = datetime.now().strftime("%d-%m-%Y-%H-%M-%S-00")
+        
+        # Create a filename with the timestamp
+        filename = f'{folder_path}{ticker}-{timestamp}.pkl'
+        
+        # Save the model using pickle
+        with open(filename, 'wb') as file:
+            pickle.dump(model, file)
+        
+        print(f"Model saved as {filename}")
         
         logging.info("Model trainning with LSTM model")
 
