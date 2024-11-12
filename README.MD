@@ -11,7 +11,6 @@ With stock market volatility and the increasing complexity of financial portfoli
 - [Project Overview](#project-overview)
 - [Features](#features)
 - [Technologies Used](#technologies-used)
-- [Data](#data)
 - [Setup Instructions](#setup-instructions)
 - [Usage](#usage)
 - [Results](#results)
@@ -36,7 +35,7 @@ With stock market volatility and the increasing complexity of financial portfoli
   - **scikit-learn**: For preprocessing and model evaluation.
   - **statsmodels**: For ARIMA modeling.
   - **TensorFlow/Keras**: For building LSTM models.
-  - **XGBoost**: For implementing tree-based regression models.
+
 
 ## Data
 
@@ -94,6 +93,13 @@ Exploratory Data Analysis Results
 ![ TSLA Seasonal Decompose](Result/9.png)
 ![ BND Seasonal Decompose](Result/10.png)
 ![ SPY Seasonal Decompose](Result/11.png)
+### LSTM forecast
+![ TSLA Forecast For one year using LSTM](Result/forecast1.png)
+![ BND Forecast For one year using LSTM](Result/forecast2.png)
+![ SPY Forecast For one year using LSTM](Result/forecast3.png)
+### Portfolio
+![ Minimum Volatility Portfolio](Result/portfolio1.png)
+![ Optimal Portfolio](Result/portfolio2.png)
 
 ## Contributing
 Contributions to improve this project are welcome. If you'd like to contribute, please fork the repository and submit a pull request.
