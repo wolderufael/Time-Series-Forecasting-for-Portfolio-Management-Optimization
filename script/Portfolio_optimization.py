@@ -1,23 +1,55 @@
 import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
+import seaborn as sns
 
 class Optimization:
     def load_data(self,file_path):
         df =pd.read_csv(file_path)
+        df=df[['Date','TSLA','BND','SPY']]
         df['Date']=pd.to_datetime(df['Date'])
         df.set_index('Date',inplace=True)
         
         return df
-    
-    def log_volitility(self,prediction):
-        prediction.pct_change().apply(lambda x: np.log(1+x)).std().apply(lambda x: x*np.sqrt(252)).plot(kind='bar')
+    def log_pct_return(self,prediction):
+        pct_return=prediction.pct_change().apply(lambda x: np.log(1+x))
         
-    def log_covaviance(self,prediction):
+        return pct_return
+    def variance(self,pct_return):
+        var = pct_return.var()
+        
+        return var 
+
+    def volitility(self,prediction,var):
+        vol = np.sqrt(var * 252)
+        plt.figure(figsize=(10,5))
+        
+        ax=prediction.pct_change().apply(lambda x: np.log(1+x)).std().apply(lambda x: x*np.sqrt(252)).plot(kind='bar',label='Volitility')
+        plt.title("Volatility of Stocks")  
+        plt.xlabel("Stocks")          
+        plt.ylabel("Volatility")  
+        plt.legend()         
+        plt.show()
+        return vol
+
+    def plot_heatmap(self,matrix, title):
+        plt.figure(figsize=(10, 8))
+        sns.heatmap(matrix, annot=True, cmap='coolwarm', fmt=".2f", linewidths=0.5)
+        plt.title(title)
+        plt.show()
+        
+    def cov_matrix(self,prediction):
         log_return = prediction.pct_change().apply(lambda x: np.log(1+x))
-        cov_matrix=log_return.cov_()
-        cov_matrix
+        cov_matrix=log_return.cov()
+        self.plot_heatmap(cov_matrix, "Covariance Matrix Heatmap")
+        
         return cov_matrix
+    
+    def corr_matrix(self,df):
+        corr_matrix = df.pct_change().apply(lambda x: np.log(1+x)).corr()
+        self.plot_heatmap(corr_matrix, "Correlation Matrix Heatmap")
+        
+        return corr_matrix
         
     def annual_return(self,prediction):
         # Yearly returns for individual companies
@@ -78,13 +110,14 @@ class Optimization:
         plt.scatter(portfolios['Volatility'], portfolios['Returns'],marker='o', s=10, alpha=0.3)
         plt.scatter(min_vol_port[1], min_vol_port[0], color='r', marker='*', s=500,label='Minimum Volatility Portfolio')
         plt.title("Minimum Volatility Portfolio")
+        plt.xlabel("Volatility (Risk)")          
+        plt.ylabel("Expected Returns")  
         plt.legend()
         return min_vol_port
         
     def optimal_port(self,portfolios,min_vol_port):
         rf = 0.01 # risk factor
         optimal_risky_port = portfolios.iloc[((portfolios['Returns']-rf)/portfolios['Volatility']).idxmax()]
-        optimal_risky_port
         
         # Plotting optimal portfolio
         plt.subplots(figsize=(10, 10))
@@ -92,6 +125,10 @@ class Optimization:
         plt.scatter(min_vol_port[1], min_vol_port[0], color='r', marker='*', s=500,label='Minimum Volatility Portfolio')
         plt.scatter(optimal_risky_port[1], optimal_risky_port[0], color='g', marker='*', s=500,label='Optimal Portfolio')
         plt.title("Optimal Portfolio")
+        plt.xlabel("Volatility (Risk)")          
+        plt.ylabel("Expected Returns")  
         plt.legend()
+        
+        return optimal_risky_port
         
         
