@@ -84,4 +84,8 @@ class Forecast:
             print("Market Opportunity: There is potential for growth, suggesting possible price increases.")
         else:
             print("Market Risk: The downward trend suggests potential price declines, indicating high risk.")
-            
+    
+    def merge_and_save(sel,df1,df2,df3):
+        # Concatenate along the Date index, keeping only rows with matching indices
+        merged_df = pd.concat([df1, df2, df3], axis=1, join='inner').reset_index()
+        merged_df.to_csv("data/forecast.csv")
